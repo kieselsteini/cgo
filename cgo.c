@@ -66,7 +66,7 @@ void usage()
 
 void banner(FILE *f)
 {
-    fputs("cgo 0.1.0  Copyright (C) 2012  Sebastian Steinhauer\n", f);
+    fputs("cgo 0.2.0  Copyright (c) 2013  Sebastian Steinhauer\n", f);
 }
 
 int dial(const char *host, const char *port, const char *selector)
