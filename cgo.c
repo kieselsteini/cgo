@@ -517,8 +517,8 @@ int main(int argc, char *argv[])
                     "*          - reload directory\n"
                     "<          - go back in history\n"
                     ".LINK      - download the given link\n"
-                    "h[LINk]    - show history\n"
-                    "             jump to specific history item\n"
+                    "h          - show history\n"
+                    "hLINK      - jump to the specified history item\n"
                     "C^d        - quit");
                 break;
             case '<':
