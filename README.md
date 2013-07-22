@@ -62,6 +62,8 @@ Usage
   * *       reload directory
   * [xx]    show / jump to selector
   * .[xx]   download selector
+  * h       show history
+  * h[xx]   jump to specifiy history item
 
 [xx] stands for the two colored letters in front of selectors.
 

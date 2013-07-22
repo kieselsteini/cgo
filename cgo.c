@@ -1,18 +1,18 @@
-/* cgo - a simple terminal based gopher client
- * Copyright (C) 2012  Sebastian Steinhauer <s.steinhauer@yahoo.de>
+/*
+ * cgo - a simple terminal based gopher client
+ * Copyright (c) 2013 Sebastian Steinhauer <s.steinhauer@yahoo.de>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -162,6 +162,19 @@ int download_temp(const char *host, const char *port, const char *selector)
     return 1;
 }
 
+int make_key(char c1, char c2)
+{
+    if (! c1 || ! c2)
+        return -1;
+    return ((c1 - 'a') * KEY_RANGE) + (c2 - 'a');
+}
+
+void make_key_str(int key, char *c1, char *c2)
+{
+    *c1 = 'a' + (key / KEY_RANGE);
+    *c2 = 'a' + (key % KEY_RANGE);
+}
+
 void add_link(char which, const char *name,
         const char *host, const char *port, const char *selector)
 {
@@ -181,11 +194,8 @@ void add_link(char which, const char *name,
     else
         link->next = links;
     links = link;
-    
-    a = 'a' + (link_key / KEY_RANGE);
-    b = 'a' + (link_key % KEY_RANGE);
-    link_key++;
 
+    make_key_str(link_key++, &a, &b);    
     printf("\033[%sm%c%c\033[0m \033[1m%s\033[0m\n",
             COLOR_SELECTOR, a, b, name);
 }
@@ -353,6 +363,35 @@ void view_search(const char *host, const char *port, const char *selector)
     view_directory(host, port, search_selector, 1);
 }
 
+void view_history(int key)
+{
+    int     history_key = 0;
+    char    a, b;
+    link_t  *link;
+
+    if (! history) {
+        puts("(empty history)");
+        return;
+    }
+    if ( key < 0 ) {
+        puts("(history)");
+        for ( link = history; link; link = link->next ) {
+            make_key_str(history_key++, &a, &b);
+            printf("\033[%sm%c%c\033[0m \033[1m%s:%s%s\033[0m\n",
+                COLOR_SELECTOR, a, b, link->host, link->port, link->selector);
+        }
+    } else {
+        /* traverse history list */
+        for ( link = history; link; link = link->next, ++history_key ) {
+            if ( history_key == key ) {
+                view_directory(link->host, link->port, link->selector, 0);
+                return;
+            }
+        }
+        puts("history item not found");
+    }
+}
+
 void pop_history()
 {
     link_t  *next;
@@ -370,13 +409,6 @@ void pop_history()
     free(history->selector);
     free(history);
     history = next;
-}
-
-int make_key(char c1, char c2)
-{
-    if (! c1 || ! c2)
-        return -1;
-    return ((c1 - 'a') * KEY_RANGE) + (c2 - 'a');
 }
 
 int follow_link(int key)
@@ -481,11 +513,13 @@ int main(int argc, char *argv[])
         switch (line[0]) {
             case '?':
                 puts(
-                    "?      - help\n"
-                    "*      - reload directory\n"
-                    "<      - go back in history\n"
-                    ".LINK  - download the given link\n"
-                    "C^d    - quit");
+                    "?          - help\n"
+                    "*          - reload directory\n"
+                    "<          - go back in history\n"
+                    ".LINK      - download the given link\n"
+                    "h[LINk]    - show history\n"
+                    "             jump to specific history item\n"
+                    "C^d        - quit");
                 break;
             case '<':
                 pop_history();
@@ -496,6 +530,9 @@ int main(int argc, char *argv[])
                 break;
             case '.':
                 download_link(make_key(line[1], line[2]));
+                break;
+            case 'h':
+                view_history(make_key(line[1], line[2]));
                 break;
             default:
                 follow_link(make_key(line[0], line[1]));
