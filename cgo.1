@@ -1,0 +1,98 @@
+.\"
+.\"	cgo - a simple terminal based gopher client
+.\"	Copyright (c) 2013 Sebastian Steinhauer <s.steinhauer@yahoo.de>
+.\"
+.\"	Permission to use, copy, modify, and distribute this software for any
+.\"	purpose with or without fee is hereby granted, provided that the above
+.\"	copyright notice and this permission notice appear in all copies.
+.\"
+.\"	THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\"	WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\"	MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\"	ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\"	WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\"	ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\"	OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"
+.Dd $Mdocdate$
+.Dt CGO 1
+.Os
+.Sh Name
+.Nm cgo
+.Nd simple terminal based gopher client
+.Sh SYNOPSIS
+.Nm cgo
+.Op Fl h Ar host
+.Op Fl p Ar port
+.Op Fl s Ar selector
+.Op Fl Hv
+.Sh DESCRIPTION
+.Nm
+is a UNIX/Linux terminal based gopher client. It has no dependencies other than
+libc and some syscalls.
+It should run on every VT100 compatible terminal.
+To show media like images, music, or webpages it relies on external programs you
+can specify.
+.Pp
+.Nm
+means more or less, the "c go"pher client.
+And c could stand for C (the programming language), colorful or console.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl h Ar host
+Connect to the specified host, does not take gopher:// prefix.
+Defaults to gopher.floodgap.com.
+.It Fl p Ar port
+Connect to the specified port.
+Defaults to 70.
+.It Fl s Ar selector
+Use this selector on startup.
+Defaults to /.
+.It Fl H
+Show usage.
+.It Fl v
+Print version.
+.El
+.Pp
+When "surfing" in the gopherspace, 
+.Nm
+only presents directory listings.
+Every selector is preceeded by two ASCII characters.
+By typing in both characters
+.Nm
+will jump to the given selector.
+Every time you jump to another directory listing
+.Nm
+generates a history entry (like every browser).
+To show other media
+.Nm
+uses external programs (e.g. less, display, mplayer, firefox).
+The following commands are understood by
+.Nm :
+.Pp
+.Bl -tag -width Ds -compact -offset indent
+.It Ar \?
+Help.
+.It Ar <
+Jump back one step in history.
+.It Ar *
+Reload current directory.
+.It Ar h
+Show history.
+.It Ar LINK
+Show/jump to selector.
+.It Ar \.LINK
+Download selector.
+.It Ar hLINK
+Jump to specified history item.
+.It Ar CTRL-d
+Quit.
+.El
+.Pp
+LINK stands for the two colored letters in front of each selector.
+.El
+.Sh BUGS
+.Nm
+does not yet have a configuration file so external programs are hardcoded into
+the binary.
