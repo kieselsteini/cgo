@@ -452,7 +452,7 @@ int follow_link(int key)
                 view_file(CMD_PLAYER, link->host, link->port, link->selector);
                 break;
             default:
-                printf("mssing handler [%c]\n", link->which);
+                printf("missing handler [%c]\n", link->which);
                 break;
         }
         return 1; /* return the array is broken after view! */
