@@ -149,7 +149,11 @@ int download_temp(const char *host, const char *port, const char *selector)
 {
     int     tmpfd;
 
+#if defined(__OpenBSD__)
+    strlcpy(tmpfilename, "/tmp/cgoXXXXXX", sizeof(tmpfilename));
+#else
     strcpy(tmpfilename, "/tmp/cgoXXXXXX");
+#endif
     tmpfd = mkstemp(tmpfilename);
     if (tmpfd == -1) {
         fputs("error: unable to create tmp file\n", stderr);
@@ -333,7 +337,11 @@ void view_download(const char *host, const char *port, const char *selector)
         return;
     }
     if (strlen(line) > 0)
+#if defined(__OpenBSD__)
+        strlcpy(filename, line, sizeof(filename));
+#else
         strcpy(filename, line);
+#endif
     fd = open(filename, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
     if (fd == -1) {
         printf("error: unable to create file [%s]: %s\n",
@@ -444,7 +452,7 @@ int follow_link(int key)
                 view_file(CMD_PLAYER, link->host, link->port, link->selector);
                 break;
             default:
-                printf("mssing handler [%c]\n", link->which);
+                printf("missing handler [%c]\n", link->which);
                 break;
         }
         return 1; /* return the array is broken after view! */
