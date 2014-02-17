@@ -260,6 +260,7 @@ void handle_directory_line(char *line)
     /* determine listing type */
     switch (line[0]) {
         case 'i':
+        case '3':
             printf("   %s\n", fields[0]);
             break;
         case '.':   /* some gopher servers use this */
@@ -286,6 +287,7 @@ int is_valid_directory_entry(const char *line)
 {
     switch (line[0]) {
         case 'i':
+        case '3':
         case '.':   /* some gopher servers use this */
         case '0':
         case '1':
