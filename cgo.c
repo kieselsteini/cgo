@@ -36,6 +36,7 @@
 #define CMD_PLAYER          "mplayer"
 #define COLOR_PROMT         "1;34"
 #define COLOR_SELECTOR      "1;32"
+#define HEAD_CHECK_LEN      5
 
 /* some internal defines */
 #define KEY_RANGE   ('z' - 'a')
@@ -237,12 +238,77 @@ void add_history()
     history = link;
 }
 
+void handle_directory_line(char *line)
+{
+    int     i;
+    char    *lp, *last, *fields[4];
+
+    /* tokenize */
+    for (i = 0; i < 4; i++)
+        fields[i] = NULL;
+    last = &line[1];
+    for (lp = last, i = 0; i < 4; lp++) {
+        if (*lp == '\t' || *lp == '\0') {
+            fields[i] = last;
+            last = lp + 1;
+            if (*lp == '\0')
+                break;
+            *lp = '\0';
+            i++;
+        }
+    }
+    /* determine listing type */
+    switch (line[0]) {
+        case 'i':
+            printf("   %s\n", fields[0]);
+            break;
+        case '.':   /* some gopher servers use this */
+            puts("");
+            break;
+        case '0':
+        case '1':
+        case '5':
+        case '7':
+        case '9':
+        case 'g':
+        case 'I':
+        case 'h':
+        case 's':
+            add_link(line[0], fields[0], fields[2], fields[3], fields[1]);
+            break;
+        default:
+            printf("miss [%c]: %s\n", line[0], fields[0]);
+            break;
+    }
+}
+
+int is_valid_directory_entry(const char *line)
+{
+    switch (line[0]) {
+        case 'i':
+        case '.':   /* some gopher servers use this */
+        case '0':
+        case '1':
+        case '5':
+        case '7':
+        case '9':
+        case 'g':
+        case 'I':
+        case 'h':
+        case 's':
+            return 1;
+        default:
+            return 0;
+    }
+}
+
 void view_directory(const char *host, const char *port,
         const char *selector, int make_current)
 {
-    int     srvfd, i;
+    int     is_dir;
+    int     srvfd, i, head_read;
     char    line[1024];
-    char    *lp, *last, *fields[4];
+    char    head[HEAD_CHECK_LEN][1024];
 
     srvfd = dial(host, port, selector);
     if (srvfd != -1) {  /* only adapt current prompt when successful */
@@ -261,44 +327,26 @@ void view_directory(const char *host, const char *port,
     clear_links();  /* clear links *AFTER* dialing out!! */
     if (srvfd == -1)
         return; /* quit if not successful */
+    head_read = 0;
+    is_dir = 1;
+    while (head_read < HEAD_CHECK_LEN && read_line(srvfd, line, sizeof(line))) {
+        strcpy(head[head_read], line);
+        if (!is_valid_directory_entry(head[head_read])) {
+            is_dir = 0;
+            break;
+        }
+        head_read++;
+    }
+    if (!is_dir) {
+        puts("error: Not a directory.");
+        close(srvfd);
+        return;
+    }
+    for (i = 0; i < head_read; i++) {
+        handle_directory_line(head[i]);
+    }
     while (read_line(srvfd, line, sizeof(line))) {
-        /* tokenize */
-        for (i = 0; i < 4; i++)
-            fields[i] = NULL;
-        last = &line[1];
-        for (lp = last, i = 0; i < 4; lp++) {
-            if (*lp == '\t' || *lp == '\0') {
-                fields[i] = last;
-                last = lp + 1;
-                if (*lp == '\0')
-                    break;
-                *lp = '\0';
-                i++;
-            }
-        }
-        /* determine listing type */
-        switch (line[0]) {
-            case 'i':
-                printf("   %s\n", fields[0]);
-                break;
-            case '.':   /* some gopher servers use this */
-                puts("");
-                break;
-            case '0':
-            case '1':
-            case '5':
-            case '7':
-            case '9':
-            case 'g':
-            case 'I':
-            case 'h':
-            case 's':
-                add_link(line[0], fields[0], fields[2], fields[3], fields[1]);
-                break;
-            default:
-                printf("miss [%c]: %s\n", line[0], fields[0]);
-                break;
-        }
+        handle_directory_line(line);
     }
     close(srvfd);
 }
