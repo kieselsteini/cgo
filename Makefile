@@ -13,7 +13,8 @@ clean:
 	rm -f $(OBJ) $(BIN)
 
 install:
-	@cp -f $(BIN) $(DESTDIR)$(PREFIX)/bin
+	@mkdir -p $(DESTDIR)$(PREFIX)/bin/
+	@install $(BIN) $(DESTDIR)$(PREFIX)/bin/${BIN}
 
 uninstall:
 	@rm -f $(DESTDIR)$(PREFIX)/bin/$(BIN)
