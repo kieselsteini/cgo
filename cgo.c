@@ -127,8 +127,9 @@ int read_line(int fd, char *buf, size_t buf_len)
 int download_file(const char *host, const char *port,
         const char *selector, int fd)
 {
-    int     srvfd, len;
-    char    buffer[1024];
+    int             srvfd, len;
+    unsigned long   total = 0;
+    char            buffer[4096];
 
     printf("downloading [%s]...\r", selector);
     srvfd = dial(host, port, selector);
@@ -139,6 +140,8 @@ int download_file(const char *host, const char *port,
     }
     while ((len = read(srvfd, buffer, sizeof(buffer))) > 0) {
         write(fd, buffer, len);
+        total += len;
+        printf("downloading [%s] (%ld kb)...\r", selector, total / 1024);
     }
     close(fd);
     close(srvfd);
