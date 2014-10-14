@@ -1,4 +1,4 @@
-# see COPYING for copyright and license details
+# see cgo.c for copyright and license details
 PREFIX = /usr/local
 # to compile a very very small client using dietlibc
 #CC = diet -Os gcc -Wall
