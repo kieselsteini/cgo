@@ -56,6 +56,7 @@ link_t      *links = NULL;
 link_t      *history = NULL;
 int         link_key;
 char        current_host[512], current_port[64], current_selector[1024];
+char        parsed_host[512], parsed_port[64], parsed_selector[1024];
 
 
 void usage()
@@ -526,6 +527,38 @@ void download_link(int key)
     puts("link not found");
 }
 
+int parse_uri(const char *uri)
+{
+    int     i;
+
+    /* strip gopher:// */
+    if (! strncmp(uri, "gopher://", 9))
+        uri += 9;
+    /* parse host */
+    for (i = 0; *uri && *uri != ':' && *uri != '/'; uri++) {
+        if (*uri != ' ' && i < sizeof(parsed_host) - 1)
+            parsed_host[i++] = *uri;
+    }
+    if (i > 0) parsed_host[i] = 0;
+    else return 0;
+    /* parse port */
+    if (*uri == ':') {
+        uri++;
+        for (i = 0; *uri && *uri != '/'; uri++)
+            if (*uri != ' ' && i < sizeof(parsed_port) - 1)
+                parsed_port[i++] = *uri;
+        parsed_port[i] = 0;
+    } else snprintf(parsed_port, sizeof(parsed_port), "%d", 70);
+    /* parse selector */
+    if (*uri == '/') {
+        for (i = 0; *uri; uri++)
+            if (i < sizeof(parsed_selector) - 1)
+                parsed_selector[i++] = *uri;
+        parsed_selector[i++] = *uri;
+    } else snprintf(parsed_selector, sizeof(parsed_selector), "%s", "/");
+    return 1;
+}
+
 int main(int argc, char *argv[])
 {
     int     i;
@@ -558,6 +591,16 @@ int main(int argc, char *argv[])
                 break;
             default:
                 usage();
+        } else {
+            if (parse_uri(argv[i])) {
+                host = parsed_host;
+                port = parsed_port;
+                selector = parsed_selector;
+            } else {
+                banner(stderr);
+                fprintf(stderr, "invalid gopher URI: %s", argv[i]);
+                exit(EXIT_FAILURE);
+            }
         }
     }
 
@@ -580,6 +623,7 @@ int main(int argc, char *argv[])
                     ".LINK      - download the given link\n"
                     "h          - show history\n"
                     "hLINK      - jump to the specified history item\n"
+                    "gURI       - jump to the given gopher URI\n"
                     "C^d        - quit");
                 break;
             case '<':
@@ -594,6 +638,10 @@ int main(int argc, char *argv[])
                 break;
             case 'h':
                 view_history(make_key(line[1], line[2]));
+                break;
+            case 'g':
+                if (parse_uri(&line[1])) view_directory(parsed_host, parsed_port, parsed_selector, 1);
+                else puts("invalid gopher URI");
                 break;
             default:
                 follow_link(make_key(line[0], line[1]));
