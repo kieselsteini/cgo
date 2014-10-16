@@ -559,6 +559,25 @@ int parse_uri(const char *uri)
     return 1;
 }
 
+void view_parent_directory()
+{
+    int     i, last;
+
+    /* copy current */
+    snprintf(parsed_host, sizeof(parsed_host), "%s", current_host);
+    snprintf(parsed_port, sizeof(parsed_port), "%s", current_port);
+    snprintf(parsed_selector, sizeof(parsed_selector), "%s", current_selector);
+    /* find last / */
+    for (i = 0, last = -1; parsed_selector[i]; i++)
+        if (parsed_selector[i] == '/')
+            last = i;
+    if (last >= 0) {
+        if (last == 0) last++; /* keep last / */
+        parsed_selector[last] =  0;
+        view_directory(parsed_host, parsed_port, parsed_selector, 1);
+    } else puts("(already at top level)");
+}
+
 int main(int argc, char *argv[])
 {
     int     i;
@@ -624,6 +643,7 @@ int main(int argc, char *argv[])
                     ".LINK      - download the given link\n"
                     "h          - show history\n"
                     "hLINK      - jump to the specified history item\n"
+                    "u          - go up to parent selector\n"
                     "gURI       - jump to the given gopher URI\n"
                     "C^d        - quit");
                 break;
@@ -639,6 +659,9 @@ int main(int argc, char *argv[])
                 break;
             case 'h':
                 view_history(make_key(line[1], line[2]));
+                break;
+            case 'u':
+                view_parent_directory();
                 break;
             case 'g':
                 if (parse_uri(&line[1])) view_directory(parsed_host, parsed_port, parsed_selector, 1);
