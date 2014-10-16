@@ -43,6 +43,7 @@ gopherhole specified in the source file.
  * -s [selector]    use this selector on startup
  * -H               show usage
  * -v               print version
+ * gopher URI       opens the given gopher URI
 
 
 Usage
@@ -57,16 +58,16 @@ Usage
  to present it (e.g. less, display, mplayer, firefox).
  Following commands are understood by cgo:
 
-  * ?       help
-  * <       jump back in history
-  * *       reload directory
-  * [xx]    show / jump to selector
-  * .[xx]   download selector
-  * h       show history
-  * h[xx]   jump to specifiy history item
+  * ?           help
+  * <           jump back in history
+  * *           reload directory
+  * [xx]        show / jump to selector
+  * .[xx]       download selector
+  * h           show history
+  * h[xx]       jump to specifiy history item
+  * g[URI]      jumps right to the specified gopher URI
 
 [xx] stands for the two colored letters in front of selectors.
-
 
 Todo
 ----
