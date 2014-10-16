@@ -61,7 +61,7 @@ char        parsed_host[512], parsed_port[64], parsed_selector[1024];
 
 void usage()
 {
-    fputs("usage: cgo [-h host] [-p port] [-s selector] [-v] [-H]\n",
+    fputs("usage: cgo [-h host] [-p port] [-s selector] [-v] [-H] [gopher URI]\n",
             stderr);
     exit(EXIT_SUCCESS);
 }
@@ -569,6 +569,7 @@ int main(int argc, char *argv[])
     host = DEFAULT_HOST;
     port = DEFAULT_PORT;
     selector = DEFAULT_SELECTOR;
+    /* parse command line */
     for (i = 1; i < argc; i++) {
         if (argv[i][0] == '-') switch(argv[i][1]) {
             case 'H':
