@@ -65,7 +65,6 @@ Usage
   * .[xx]       download selector
   * h           show history
   * h[xx]       jump to specifiy history item
-  * u           go up to parent selector
   * g[URI]      jumps right to the specified gopher URI
 
 [xx] stands for the two colored letters in front of selectors.
