@@ -1,6 +1,6 @@
 /*
  * cgo - a simple terminal based gopher client
- * Copyright (c) 2013 Sebastian Steinhauer <s.steinhauer@yahoo.de>
+ * Copyright (c) 2014 Sebastian Steinhauer <s.steinhauer@yahoo.de>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -68,7 +68,7 @@ void usage()
 
 void banner(FILE *f)
 {
-    fputs("cgo 0.2.0  Copyright (c) 2013  Sebastian Steinhauer\n", f);
+    fputs("cgo 0.2.0  Copyright (c) 2014  Sebastian Steinhauer\n", f);
 }
 
 int dial(const char *host, const char *port, const char *selector)
