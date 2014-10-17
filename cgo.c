@@ -277,6 +277,7 @@ void handle_directory_line(char *line)
         case '9':
         case 'g':
         case 'I':
+        case 'p':
         case 'h':
         case 's':
             add_link(line[0], fields[0], fields[2], fields[3], fields[1]);
@@ -300,6 +301,7 @@ int is_valid_directory_entry(const char *line)
         case '9':
         case 'g':
         case 'I':
+        case 'p':
         case 'h':
         case 's':
             return 1;
@@ -496,6 +498,7 @@ int follow_link(int key)
                 break;
             case 'g':
             case 'I':
+            case 'p':
                 view_file(CMD_IMAGE, link->host, link->port, link->selector);
                 break;
             case 'h':
