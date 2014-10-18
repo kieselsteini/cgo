@@ -14,7 +14,7 @@
 .\"	ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\"	OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd October 5, 2013
+.Dd October 18, 2014
 .Dt CGO 1
 .Os
 .Sh Name
@@ -26,6 +26,7 @@
 .Op Fl p Ar port
 .Op Fl s Ar selector
 .Op Fl Hv
+.Op Ar gopher URI
 .Sh DESCRIPTION
 .Nm
 is a UNIX/Linux terminal based gopher client.
@@ -53,6 +54,8 @@ Defaults to /.
 Show usage.
 .It Fl v
 Print version.
+.It Ar gopher URI
+Opens the given gopher URI.
 .El
 .Pp
 When "surfing" in the gopherspace, 
@@ -86,6 +89,8 @@ Show/jump to selector.
 Download selector.
 .It Ar hLINK
 Jump to specified history item.
+.It Ar gURI
+Jump to the specified gopher URI.
 .It Ar CTRL-d
 Quit.
 .El
