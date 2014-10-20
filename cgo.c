@@ -466,14 +466,30 @@ void view_file(const char *cmd, const char *host,
         const char *port, const char *selector)
 {
     pid_t   pid;
-    int     status;
+    int     status, i, j;
+    char    buffer[1024], *argv[32], *p;
 
     if (! download_temp(host, port, selector))
         return;
+    
+    /* parsed command line string */
+    argv[0] = &buffer[0];
+    for (p = (char*) cmd, i = 0, j = 1; *p && i < sizeof(buffer) - 1 && j < 30; ) {
+        if (*p == ' ' || *p == '\t') {
+            buffer[i++] = 0;
+            argv[j++] = &buffer[i];
+            while (*p == ' ' || *p == '\t') p++;
+        } else buffer[i++] = *p++;
+    }
+    buffer[i] = 0;
+    argv[j++] = tmpfilename;
+    argv[j] = NULL;
+
+    /* fork and execute */
     printf("executing: %s %s\n", cmd, tmpfilename);
     pid = fork();
     if (pid == 0) {
-        if (execlp(cmd, cmd, tmpfilename, NULL) == -1)
+        if (execvp(argv[0], argv) == -1)
             puts("error: execlp() failed!");
     } else if (pid == -1) {
         puts("error: fork() failed");
