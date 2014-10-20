@@ -158,7 +158,7 @@ void init_config()
     const char  *home;
 
     /* copy defaults */
-    snprintf(config.start_uri, sizeof(config.start_uri), "floodgap.com:70");
+    snprintf(config.start_uri, sizeof(config.start_uri), START_URI);
     snprintf(config.cmd_text, sizeof(config.cmd_text), "%s", CMD_TEXT);
     snprintf(config.cmd_image, sizeof(config.cmd_image), "%s", CMD_IMAGE);
     snprintf(config.cmd_browser, sizeof(config.cmd_browser), "%s", CMD_BROWSER);
