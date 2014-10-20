@@ -33,6 +33,7 @@
 #define CMD_IMAGE           "display"
 #define CMD_BROWSER         "firefox"
 #define CMD_PLAYER          "mplayer"
+#define CMD_TELNET          "telnet"
 #define COLOR_PROMPT        "1;34"
 #define COLOR_SELECTOR      "1;32"
 #define HEAD_CHECK_LEN      5
@@ -377,6 +378,7 @@ void handle_directory_line(char *line)
         case '1':
         case '5':
         case '7':
+        case '8':
         case '9':
         case 'g':
         case 'I':
@@ -401,6 +403,7 @@ int is_valid_directory_entry(const char *line)
         case '1':
         case '5':
         case '7':
+        case '8':
         case '9':
         case 'g':
         case 'I':
@@ -469,6 +472,8 @@ void view_file(const char *cmd, const char *host,
     int     status, i, j;
     char    buffer[1024], *argv[32], *p;
 
+    printf("h(%s) p(%s) s(%s)\n", host, port, selector);
+
     if (! download_temp(host, port, selector))
         return;
     
@@ -490,13 +495,26 @@ void view_file(const char *cmd, const char *host,
     pid = fork();
     if (pid == 0) {
         if (execvp(argv[0], argv) == -1)
-            puts("error: execlp() failed!");
-    } else if (pid == -1) {
-        puts("error: fork() failed");
-    }
+            puts("error: execvp() failed!");
+    } else if (pid == -1) puts("error: fork() failed");
     sleep(1); /* to wait for browsers etc. that return immediatly */
     waitpid(pid, &status, 0);
     unlink(tmpfilename);
+}
+
+void view_telnet(const char *host, const char *port)
+{
+    pid_t   pid;
+    int     status;
+
+    printf("executing: %s %s %s\n", CMD_TELNET, host, port);
+    pid = fork();
+    if (pid == 0) {
+        if (execlp(CMD_TELNET, CMD_TELNET, host, port, NULL) == -1)
+            puts("error: execlp() failed!");
+    } else if (pid == -1) puts("error: fork() failed!");
+    waitpid(pid, &status, 0);
+    puts("(done)");
 }
 
 void view_download(const char *host, const char *port, const char *selector)
@@ -614,6 +632,9 @@ int follow_link(int key)
             case '5':
             case '9':
                 view_download(link->host, link->port, link->selector);
+                break;
+            case '8':
+                view_telnet(link->host, link->port);
                 break;
             case 'g':
             case 'I':
