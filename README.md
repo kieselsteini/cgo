@@ -38,9 +38,6 @@ Parameters
 In case you omit all parameters cgo will show you the default
 gopherhole specified in the source file.
 
- * -h [host]        use this host to connect
- * -p [port]        use this port to connect
- * -s [selector]    use this selector on startup
  * -H               show usage
  * -v               print version
  * gopher URI       opens the given gopher URI
@@ -69,11 +66,25 @@ Usage
 
 [xx] stands for the two colored letters in front of selectors.
 
+Configuration
+-------------
+
+ cgo reads "/etc/cgorc" and then "$(HOME)/.cgorc" for defaults. If both
+ files are missing, hardcoded defaults will be used. Following configuration
+ keys are recognized by cgo:
+
+ * start_uri        the gopher URI which is displayed at start
+ * cmd_text         command to show text files
+ * cmd_browser      command to HTML links
+ * cmd_image        command to show images
+ * cmd_player       command to play audio files
+ * color_prompt     ANSI color sequence for the prompt
+ * color_selector   ANSI color sequence for selectors
+
 Todo
 ----
 
- * write a man page or something like that
- * configuration files (editing code is not that easy for everyone)
+ * list is empty :D
 
 
 Bugs

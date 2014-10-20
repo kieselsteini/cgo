@@ -25,18 +25,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 /* some "configuration" */
-#define DEFAULT_HOST        "gopher.floodgap.com"
-#define DEFAULT_PORT        "70"
-#define DEFAULT_SELECTOR    "/"
+#define START_URI           "gopher://gopher.floodgap.com:70"
 #define CMD_TEXT            "less"
 #define CMD_IMAGE           "display"
 #define CMD_BROWSER         "firefox"
 #define CMD_PLAYER          "mplayer"
-#define COLOR_PROMT         "1;34"
+#define COLOR_PROMPT        "1;34"
 #define COLOR_SELECTOR      "1;32"
 #define HEAD_CHECK_LEN      5
+#define GLOBAL_CONFIG_FILE  "/etc/cgorc"
+#define LOCAL_CONFIG_FILE   "/.cgorc"
 
 /* some internal defines */
 #define KEY_RANGE   ('z' - 'a')
@@ -51,24 +52,126 @@ struct link_s {
     char    *selector;
 };
 
+typedef struct config_s config_t;
+struct config_s {
+    char    start_uri[512];
+    char    cmd_text[512];
+    char    cmd_image[512];
+    char    cmd_browser[512];
+    char    cmd_player[512];
+    char    color_prompt[512];
+    char    color_selector[512];
+};
+
 char        tmpfilename[256];
 link_t      *links = NULL;
 link_t      *history = NULL;
 int         link_key;
 char        current_host[512], current_port[64], current_selector[1024];
 char        parsed_host[512], parsed_port[64], parsed_selector[1024];
+config_t    config;
 
 
 void usage()
 {
-    fputs("usage: cgo [-h host] [-p port] [-s selector] [-v] [-H] [gopher URI]\n",
+    fputs("usage: cgo [-v] [-H] [gopher URI]\n",
             stderr);
     exit(EXIT_SUCCESS);
 }
 
 void banner(FILE *f)
 {
-    fputs("cgo 0.2.0  Copyright (c) 2014  Sebastian Steinhauer\n", f);
+    fputs("cgo 0.3.0  Copyright (c) 2014  Sebastian Steinhauer\n", f);
+}
+
+void parse_config_line(const char *line)
+{
+    char    token[1024];
+    char    *value;
+    int     i;
+
+    while (*line == ' ' || *line == '\t') line++;
+    for (i = 0; *line && *line != ' ' && *line != '\t'; line++)
+        if (i < sizeof(token) - 1) token[i++] = *line;
+    token[i] = 0;
+
+    if (! strcmp(token, "start_uri")) value = &config.start_uri[0];
+    else if (! strcmp(token, "cmd_text")) value = &config.cmd_text[0];
+    else if (! strcmp(token, "cmd_browser")) value = &config.cmd_browser[0];
+    else if (! strcmp(token, "cmd_image")) value = &config.cmd_image[0];
+    else if (! strcmp(token, "cmd_player")) value = &config.cmd_player[0];
+    else if (! strcmp(token, "color_prompt")) value = &config.color_prompt[0];
+    else if (! strcmp(token, "color_selector")) value = &config.color_selector[0];
+    else return;
+
+    while (*line == ' ' || *line == '\t') line++;
+    for (i = 0; *line; line++)
+        if (i < 512-1) value[i++] = *line;
+    for (i--; i > 0 && (value[i] == ' ' || value[i] == '\t'); i--) ;
+    value[++i] = 0;
+
+}
+
+void load_config(const char *filename)
+{
+    FILE    *fp;
+    int     ch, i;
+    char    line[1024];
+
+    fp = fopen(filename, "r");
+    if (! fp) return;
+
+    memset(line, 0, sizeof(line));
+    i = 0;
+    ch = fgetc(fp);
+    while (1) {
+        switch (ch) {
+            case '#':
+                while (ch != '\n' && ch != -1)
+                    ch = fgetc(fp);
+                break;
+            case -1:
+                parse_config_line(line);
+                fclose(fp);
+                return;
+            case '\r':
+                ch = fgetc(fp);
+                break;
+            case '\n':
+                parse_config_line(line);
+                memset(line, 0, sizeof(line));
+                i = 0;
+                ch = fgetc(fp);
+                break;
+            default:
+                if (i < sizeof(line) - 1)
+                    line[i++] = ch;
+                ch = fgetc(fp);
+                break;
+        }
+    }
+}
+
+void init_config()
+{
+    char        filename[1024];
+    const char  *home;
+
+    /* copy defaults */
+    snprintf(config.start_uri, sizeof(config.start_uri), "floodgap.com:70");
+    snprintf(config.cmd_text, sizeof(config.cmd_text), "%s", CMD_TEXT);
+    snprintf(config.cmd_image, sizeof(config.cmd_image), "%s", CMD_IMAGE);
+    snprintf(config.cmd_browser, sizeof(config.cmd_browser), "%s", CMD_BROWSER);
+    snprintf(config.cmd_player, sizeof(config.cmd_player), "%s", CMD_PLAYER);
+    snprintf(config.color_prompt, sizeof(config.color_prompt), "%s", COLOR_PROMPT);
+    snprintf(config.color_selector, sizeof(config.color_selector), "%s", COLOR_SELECTOR);
+    /* read configs */
+    load_config(GLOBAL_CONFIG_FILE);
+    home = getenv("HOME");
+    if (home) {
+        snprintf(filename, sizeof(filename), "%s%s", home, LOCAL_CONFIG_FILE);
+        load_config(filename);
+    }
 }
 
 int dial(const char *host, const char *port, const char *selector)
@@ -206,7 +309,7 @@ void add_link(char which, const char *name,
 
     make_key_str(link_key++, &a, &b);    
     printf("\033[%sm%c%c\033[0m \033[1m%s\033[0m\n",
-            COLOR_SELECTOR, a, b, name);
+            config.color_selector, a, b, name);
 }
 
 void clear_links()
@@ -484,7 +587,7 @@ int follow_link(int key)
             continue;
         switch (link->which) {
             case '0':
-                view_file(CMD_TEXT, link->host, link->port, link->selector);
+                view_file(&config.cmd_text[0], link->host, link->port, link->selector);
                 break;
             case '1':
                 view_directory(link->host, link->port, link->selector, 1);
@@ -499,14 +602,13 @@ int follow_link(int key)
             case 'g':
             case 'I':
             case 'p':
-                view_file(CMD_IMAGE, link->host, link->port, link->selector);
+                view_file(&config.cmd_image[0], link->host, link->port, link->selector);
                 break;
             case 'h':
-                view_file(CMD_BROWSER, link->host, link->port,
-                        link->selector);
+                view_file(&config.cmd_browser[0], link->host, link->port, link->selector);
                 break;
             case 's':
-                view_file(CMD_PLAYER, link->host, link->port, link->selector);
+                view_file(&config.cmd_player[0], link->host, link->port, link->selector);
                 break;
             default:
                 printf("missing handler [%c]\n", link->which);
@@ -565,13 +667,12 @@ int parse_uri(const char *uri)
 int main(int argc, char *argv[])
 {
     int     i;
-    char    line[1024];
-    char    *host, *port, *selector;
+    char    line[1024], *uri;
 
     /* copy defaults */
-    host = DEFAULT_HOST;
-    port = DEFAULT_PORT;
-    selector = DEFAULT_SELECTOR;
+    init_config();
+    uri = &config.start_uri[0];
+
     /* parse command line */
     for (i = 1; i < argc; i++) {
         if (argv[i][0] == '-') switch(argv[i][1]) {
@@ -581,37 +682,25 @@ int main(int argc, char *argv[])
             case 'v':
                 banner(stderr);
                 exit(EXIT_FAILURE);
-            case 'h':
-                if (++i >= argc) usage();
-                host = argv[i];
-                break;
-            case 'p':
-                if (++i >= argc) usage();
-                port = argv[i];
-                break;
-            case 's':
-                if (++i >= argc) usage();
-                selector = argv[i];
-                break;
             default:
                 usage();
         } else {
-            if (parse_uri(argv[i])) {
-                host = parsed_host;
-                port = parsed_port;
-                selector = parsed_selector;
-            } else {
-                banner(stderr);
-                fprintf(stderr, "invalid gopher URI: %s", argv[i]);
-                exit(EXIT_FAILURE);
-            }
+            uri = argv[i];
         }
     }
 
+    /* parse uri */
     banner(stdout);
-    view_directory(host, port, selector, 0);
-    for (;;) {  /* main loop */
-        printf("\033[%sm%s:%s%s\033[0m ", COLOR_PROMT,
+    if (! parse_uri(uri)) {
+        banner(stderr);
+        fprintf(stderr, "invalid gopher URI: %s", argv[i]);
+        exit(EXIT_FAILURE);
+    }
+    
+    /* main loop */
+    view_directory(parsed_host, parsed_port, parsed_selector, 1);
+    for (;;) {
+        printf("\033[%sm%s:%s%s\033[0m ", config.color_prompt,
                 current_host, current_port, current_selector);
         fflush(stdout); /* to display the prompt */
         if (! read_line(0, line, sizeof(line))) {

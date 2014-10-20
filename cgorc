@@ -1,0 +1,13 @@
+# start URI
+start_uri       gopher://gopher.floodgap.com:70/
+
+# commands
+cmd_text        less
+cmd_browser     firefox
+cmd_image       display
+cmd_player      mplayer
+
+# colors
+color_prompt    1;34
+color_selector  1;32
+
