@@ -714,7 +714,7 @@ int main(int argc, char *argv[])
     }
     
     /* main loop */
-    view_directory(parsed_host, parsed_port, parsed_selector, 1);
+    view_directory(parsed_host, parsed_port, parsed_selector, 0);
     for (;;) {
         printf("\033[%sm%s:%s%s\033[0m ", config.color_prompt,
                 current_host, current_port, current_selector);
