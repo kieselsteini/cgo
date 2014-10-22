@@ -22,9 +22,6 @@
 .Nd simple terminal based gopher client
 .Sh SYNOPSIS
 .Nm cgo
-.Op Fl h Ar host
-.Op Fl p Ar port
-.Op Fl s Ar selector
 .Op Fl Hv
 .Op Ar gopher URI
 .Sh DESCRIPTION
@@ -36,29 +33,20 @@ To show media like images, music, or web pages it relies on external programs
 you can specify.
 .Pp
 .Nm
-means more or less, the "c go"pher client.
-And c could stand for C (the programming language), colorful or console.
+means, more or less, the "c go"pher client.
+And c could stand for C (the programming language), colorful, or console.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
-.It Fl h Ar host
-Connect to the specified host, does not take gopher:// prefix.
-Defaults to gopher.floodgap.com.
-.It Fl p Ar port
-Connect to the specified port.
-Defaults to 70.
-.It Fl s Ar selector
-Use this selector on startup.
-Defaults to /.
 .It Fl H
 Show usage.
 .It Fl v
 Print version.
 .It Ar gopher URI
-Opens the given gopher URI.
+Open given gopher URI.
 .El
 .Pp
-When "surfing" in the gopherspace, 
+When surfing gopherspace
 .Nm
 only presents directory listings.
 Every selector is preceeded by two ASCII characters.
@@ -84,7 +72,7 @@ Reload current directory.
 .It Ar h
 Show history.
 .It Ar LINK
-Show/jump to selector.
+Jump to selector.
 .It Ar \.LINK
 Download selector.
 .It Ar hLINK
@@ -96,11 +84,29 @@ Quit.
 .El
 .Pp
 LINK stands for the two colored letters in front of each selector.
+.Sh CONFIGURATION
+.Nm
+reads /etc/cgorc and then ~/.cgorc for defaults.
+If both files are missing, hardcoded defaults will be used.
+The following configuration keys are recognized by
+.Nm :
+.Bl -tag -width Ds -compact -offset indent
+.It start_uri
+Gopher URI to display at launch.
+.It cmd_text
+Program to view text files.
+.It cmd_browser
+Program to view HTML links.
+.It cmd_image
+Program to view images.
+.It cmd_player
+Program to play audio files.
+.It color_prompt
+ANSI color sequence for the prompt.
+.It color_selector
+ANSI color sequence for selectors.
+.El
 .Sh AUTHOR
 .Nm
 was written by
 .An Sebastian Steinhauer Aq Mt s.steinhauer@yahoo.de .
-.Sh BUGS
-.Nm
-does not yet have a configuration file so external programs are hardcoded into
-the binary.
