@@ -61,8 +61,10 @@ Usage
   * [xx]        show / jump to selector
   * .[xx]       download selector
   * h           show history
-  * h[xx]       jump to specifiy history item
+  * h[xx]       jump to specified history item
   * g[URI]      jumps right to the specified gopher URI
+  * b           show bookmarks
+  * b[xx]       jump to specified bookmark item
 
 [xx] stands for the two colored letters in front of selectors.
 
@@ -80,6 +82,7 @@ Configuration
  * cmd_player       command to play audio files
  * color_prompt     ANSI color sequence for the prompt
  * color_selector   ANSI color sequence for selectors
+ * bookmarkN        configure bookmarks
 
 Todo
 ----

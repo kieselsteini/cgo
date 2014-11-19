@@ -39,10 +39,12 @@
 #define HEAD_CHECK_LEN      5
 #define GLOBAL_CONFIG_FILE  "/etc/cgorc"
 #define LOCAL_CONFIG_FILE   "/.cgorc"
+#define NUM_BOOKMARKS       20
 
 /* some internal defines */
 #define KEY_RANGE   ('z' - 'a')
 
+/* structs */
 typedef struct link_s link_t;
 struct link_s {
     link_t  *next;
@@ -70,9 +72,13 @@ link_t      *history = NULL;
 int         link_key;
 char        current_host[512], current_port[64], current_selector[1024];
 char        parsed_host[512], parsed_port[64], parsed_selector[1024];
+char        bookmarks[NUM_BOOKMARKS][512];
 config_t    config;
 
+/* function prototypes */
+int parse_uri(const char *uri);
 
+/* implementation */
 void usage()
 {
     fputs("usage: cgo [-v] [-H] [gopher URI]\n",
@@ -82,14 +88,15 @@ void usage()
 
 void banner(FILE *f)
 {
-    fputs("cgo 0.3.0  Copyright (c) 2014  Sebastian Steinhauer\n", f);
+    fputs("cgo 0.4.0  Copyright (c) 2014  Sebastian Steinhauer\n", f);
 }
 
 void parse_config_line(const char *line)
 {
     char    token[1024];
-    char    *value;
-    int     i;
+    char    bkey[128];
+    char    *value = NULL;
+    int     i, j;
 
     while (*line == ' ' || *line == '\t') line++;
     for (i = 0; *line && *line != ' ' && *line != '\t'; line++)
@@ -103,7 +110,16 @@ void parse_config_line(const char *line)
     else if (! strcmp(token, "cmd_player")) value = &config.cmd_player[0];
     else if (! strcmp(token, "color_prompt")) value = &config.color_prompt[0];
     else if (! strcmp(token, "color_selector")) value = &config.color_selector[0];
-    else return;
+    else {
+        for (j = 0; j < NUM_BOOKMARKS; j++) {
+            snprintf(bkey, sizeof(bkey), "bookmark%d", j+1);
+            if (! strcmp(token, bkey)) {
+                value = &bookmarks[j][0];
+                break;
+            }
+        }
+        if (! value) return;
+    };
 
     while (*line == ' ' || *line == '\t') line++;
     for (i = 0; *line; line++)
@@ -157,6 +173,7 @@ void init_config()
 {
     char        filename[1024];
     const char  *home;
+    int         i;
 
     /* copy defaults */
     snprintf(config.start_uri, sizeof(config.start_uri), START_URI);
@@ -166,6 +183,7 @@ void init_config()
     snprintf(config.cmd_player, sizeof(config.cmd_player), "%s", CMD_PLAYER);
     snprintf(config.color_prompt, sizeof(config.color_prompt), "%s", COLOR_PROMPT);
     snprintf(config.color_selector, sizeof(config.color_selector), "%s", COLOR_SELECTOR);
+    for (i = 0; i < NUM_BOOKMARKS; i++) bookmarks[i][0] = 0;
     /* read configs */
     load_config(GLOBAL_CONFIG_FILE);
     home = getenv("HOME");
@@ -593,6 +611,31 @@ void view_history(int key)
     }
 }
 
+void view_bookmarks(int key)
+{
+    int     i;
+    char    a, b;
+
+    if (key < 0) {
+        puts("(bookmarks)");
+        for (i = 0; i < NUM_BOOKMARKS; i++) {
+            if (bookmarks[i][0]) {
+                make_key_str(i, &a, &b);
+                printf("\033[%sm%c%c\033[0m \033[1m%s\033[0m\n",
+                    COLOR_SELECTOR, a, b, &bookmarks[i][0]);
+            }
+        }
+    } else {
+        for (i = 0; i < NUM_BOOKMARKS; i++) {
+            if (bookmarks[i][0] && i == key) {
+                if (parse_uri(&bookmarks[i][0])) view_directory(parsed_host, parsed_port, parsed_selector, 0);
+                else printf("invalid gopher URI: %s", &bookmarks[i][0]);
+                return;
+            }
+        }
+    }
+}
+
 void pop_history()
 {
     link_t  *next;
@@ -754,6 +797,8 @@ int main(int argc, char *argv[])
                     "h          - show history\n"
                     "hLINK      - jump to the specified history item\n"
                     "gURI       - jump to the given gopher URI\n"
+                    "b          - show bookmarks\n"
+                    "bLINK      - jump to the specified bookmark item\n"
                     "C^d        - quit");
                 break;
             case '<':
@@ -772,6 +817,9 @@ int main(int argc, char *argv[])
             case 'g':
                 if (parse_uri(&line[1])) view_directory(parsed_host, parsed_port, parsed_selector, 1);
                 else puts("invalid gopher URI");
+                break;
+            case 'b':
+                view_bookmarks(make_key(line[1], line[2]));
                 break;
             default:
                 follow_link(make_key(line[0], line[1]));
