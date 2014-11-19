@@ -14,7 +14,7 @@
 .\"	ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 .\"	OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"
-.Dd October 18, 2014
+.Dd November 19, 2014
 .Dt CGO 1
 .Os
 .Sh Name
@@ -71,12 +71,16 @@ Jump back one step in history.
 Reload current directory.
 .It Ar h
 Show history.
+.It Ar b
+Show bookmarks.
 .It Ar LINK
 Jump to selector.
 .It Ar \.LINK
 Download selector.
 .It Ar hLINK
 Jump to specified history item.
+.It Ar bLINK
+Jump to specified bookmark item.
 .It Ar gURI
 Jump to the specified gopher URI.
 .It Ar CTRL-d
@@ -93,6 +97,8 @@ The following configuration keys are recognized by
 .Bl -tag -width Ds -compact -offset indent
 .It start_uri
 Gopher URI to display at launch.
+.It bookmarkN
+Configure a bookmark.
 .It cmd_text
 Program to view text files.
 .It cmd_browser
