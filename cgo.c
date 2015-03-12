@@ -88,7 +88,7 @@ void usage()
 
 void banner(FILE *f)
 {
-    fputs("cgo 0.4.0  Copyright (c) 2014  Sebastian Steinhauer\n", f);
+    fputs("cgo 0.4.1  Copyright (c) 2014  Sebastian Steinhauer\n", f);
 }
 
 void parse_config_line(const char *line)
