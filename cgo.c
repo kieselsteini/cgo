@@ -326,7 +326,7 @@ void add_link(char which, const char *name,
         link->next = links;
     links = link;
 
-    make_key_str(link_key++, &a, &b);    
+    make_key_str(link_key++, &a, &b);
     printf("\033[%sm%c%c\033[0m \033[1m%s\033[0m\n",
             config.color_selector, a, b, name);
 }
@@ -334,7 +334,7 @@ void add_link(char which, const char *name,
 void clear_links()
 {
     link_t  *link, *next;
-    
+
     for (link = links; link; ) {
         next = link->next;
         free(link->host);
@@ -494,7 +494,7 @@ void view_file(const char *cmd, const char *host,
 
     if (! download_temp(host, port, selector))
         return;
-    
+
     /* parsed command line string */
     argv[0] = &buffer[0];
     for (p = (char*) cmd, i = 0, j = 1; *p && i < sizeof(buffer) - 1 && j < 30; ) {
@@ -776,7 +776,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "invalid gopher URI: %s", argv[i]);
         exit(EXIT_FAILURE);
     }
-    
+
     /* main loop */
     view_directory(parsed_host, parsed_port, parsed_selector, 0);
     for (;;) {
@@ -787,6 +787,7 @@ int main(int argc, char *argv[])
             puts("QUIT");
             return EXIT_SUCCESS;
         }
+        i = strlen(line);
         switch (line[0]) {
             case '?':
                 puts(
@@ -812,14 +813,18 @@ int main(int argc, char *argv[])
                 download_link(make_key(line[1], line[2]));
                 break;
             case 'h':
-                view_history(make_key(line[1], line[2]));
+                if (i == 1 || i == 3) view_history(make_key(line[1], line[2]));
+                else follow_link(make_key(line[0], line[1]));
                 break;
             case 'g':
-                if (parse_uri(&line[1])) view_directory(parsed_host, parsed_port, parsed_selector, 1);
-                else puts("invalid gopher URI");
+                if (i != 2) {
+                    if (parse_uri(&line[1])) view_directory(parsed_host, parsed_port, parsed_selector, 1);
+                    else puts("invalid gopher URI");
+                } else follow_link(make_key(line[0], line[1]));
                 break;
             case 'b':
-                view_bookmarks(make_key(line[1], line[2]));
+                if (i == 1 || i == 3) view_bookmarks(make_key(line[1], line[2]));
+                else follow_link(make_key(line[0], line[1]));
                 break;
             default:
                 follow_link(make_key(line[0], line[1]));
@@ -828,4 +833,3 @@ int main(int argc, char *argv[])
     }
     return EXIT_SUCCESS; /* never get's here but stops cc complaining */
 }
-
