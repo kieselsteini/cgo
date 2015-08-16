@@ -42,7 +42,7 @@
 #define NUM_BOOKMARKS       20
 
 /* some internal defines */
-#define KEY_RANGE   ('z' - 'a')
+#define KEY_RANGE   	(('z' - 'a') + 1)
 
 /* structs */
 typedef struct link_s link_t;
