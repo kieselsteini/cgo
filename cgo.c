@@ -297,20 +297,38 @@ int make_key(char c1, char c2)
 {
     if (! c1 || ! c2)
         return -1;
-    return ((c1 - 'a') * KEY_RANGE) + (c2 - 'a');
+    else
+        return ((c1 - 'a') * KEY_RANGE) + (c2 - 'a');
 }
 
-void make_key_str(int key, char *c1, char *c2)
+int make_key2(char c1, char c2, char c3)
 {
-    *c1 = 'a' + (key / KEY_RANGE);
-    *c2 = 'a' + (key % KEY_RANGE);
+    if (! c1 || ! c2)
+        return -1;
+
+    if (! c3)
+        return ((c1 - 'a') * KEY_RANGE) + (c2 - 'a');
+    else
+        return (((c1 - 'a' + 1) * KEY_RANGE * KEY_RANGE) + ((c2 - 'a') * KEY_RANGE) + (c3 - 'a'));
+}
+
+void make_key_str(int key, char *c1, char *c2, char *c3) {
+    if (key < (KEY_RANGE * KEY_RANGE)) {
+        *c1 = 'a' + (key / KEY_RANGE);
+        *c2 = 'a' + (key % KEY_RANGE);
+        *c3 = 0;
+    } else {
+        *c1 = 'a' + (key / (KEY_RANGE * KEY_RANGE)) - 1;
+        *c2 = 'a' + ((key / KEY_RANGE) % KEY_RANGE);
+        *c3 = 'a' + (key % KEY_RANGE);
+    }
 }
 
 void add_link(char which, const char *name,
         const char *host, const char *port, const char *selector)
 {
     link_t  *link;
-    char    a = 0, b = 0;
+    char    a = 0, b = 0, c = 0;
 
     if (! host || ! port || ! selector)
         return; /* ignore incomplete selectors */
@@ -326,9 +344,9 @@ void add_link(char which, const char *name,
         link->next = links;
     links = link;
 
-    make_key_str(link_key++, &a, &b);
-    printf("\033[%sm%c%c\033[0m \033[1m%s\033[0m\n",
-            config.color_selector, a, b, name);
+    make_key_str(link_key++, &a, &b, &c);
+    printf("\033[%sm%c%c%c\033[0m \033[1m%s\033[0m\n",
+            config.color_selector, a, b, c, name);
 }
 
 void clear_links()
@@ -585,7 +603,7 @@ void view_search(const char *host, const char *port, const char *selector)
 void view_history(int key)
 {
     int     history_key = 0;
-    char    a, b;
+    char    a, b, c;
     link_t  *link;
 
     if (! history) {
@@ -595,9 +613,9 @@ void view_history(int key)
     if ( key < 0 ) {
         puts("(history)");
         for ( link = history; link; link = link->next ) {
-            make_key_str(history_key++, &a, &b);
-            printf("\033[%sm%c%c\033[0m \033[1m%s:%s%s\033[0m\n",
-                COLOR_SELECTOR, a, b, link->host, link->port, link->selector);
+            make_key_str(history_key++, &a, &b, &c);
+            printf("\033[%sm%c%c%c\033[0m \033[1m%s:%s%s\033[0m\n",
+                COLOR_SELECTOR, a, b, c, link->host, link->port, link->selector);
         }
     } else {
         /* traverse history list */
@@ -614,15 +632,15 @@ void view_history(int key)
 void view_bookmarks(int key)
 {
     int     i;
-    char    a, b;
+    char    a, b, c;
 
     if (key < 0) {
         puts("(bookmarks)");
         for (i = 0; i < NUM_BOOKMARKS; i++) {
             if (bookmarks[i][0]) {
-                make_key_str(i, &a, &b);
-                printf("\033[%sm%c%c\033[0m \033[1m%s\033[0m\n",
-                    COLOR_SELECTOR, a, b, &bookmarks[i][0]);
+                make_key_str(i, &a, &b, &c);
+                printf("\033[%sm%c%c%c\033[0m \033[1m%s\033[0m\n",
+                    COLOR_SELECTOR, a, b, c, &bookmarks[i][0]);
             }
         }
     } else {
@@ -827,7 +845,7 @@ int main(int argc, char *argv[])
                 else follow_link(make_key(line[0], line[1]));
                 break;
             default:
-                follow_link(make_key(line[0], line[1]));
+                follow_link(make_key2(line[0], line[1], line[2]));
                 break;
         }
     }
