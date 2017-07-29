@@ -49,8 +49,9 @@ Open given gopher URI.
 When surfing gopherspace
 .Nm
 only presents directory listings.
-Every selector is preceeded by two ASCII characters.
-By typing in both characters
+Every selector is preceded by two ASCII characters,
+or three if we run out of selectors in the range 'aa', 'ab' ... 'zz'.
+By typing in these characters
 .Nm
 will jump to the given selector.
 Every time you jump to another directory listing
@@ -69,25 +70,25 @@ Help.
 Jump back one step in history.
 .It Ar *
 Reload current directory.
-.It Ar h
+.It Ar H
 Show history.
-.It Ar b
+.It Ar B
 Show bookmarks.
-.It Ar LINK
+.It Ar [LINK]
 Jump to selector.
-.It Ar \.LINK
+.It Ar \.[LINK]
 Download selector.
-.It Ar hLINK
+.It Ar H[LINK]
 Jump to specified history item.
-.It Ar bLINK
+.It Ar B[LINK]
 Jump to specified bookmark item.
-.It Ar gURI
+.It Ar G[URI]
 Jump to the specified gopher URI.
 .It Ar CTRL-d
 Quit.
 .El
 .Pp
-LINK stands for the two colored letters in front of each selector.
+[LINK] stands for the two (or three) colored letters in front of each selector.
 .Sh CONFIGURATION
 .Nm
 reads /etc/cgorc and then ~/.cgorc for defaults.
