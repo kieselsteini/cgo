@@ -39,7 +39,7 @@
 #define HEAD_CHECK_LEN      5
 #define GLOBAL_CONFIG_FILE  "/etc/cgorc"
 #define LOCAL_CONFIG_FILE   "/.cgorc"
-#define NUM_BOOKMARKS       20
+#define NUM_BOOKMARKS       2000
 
 /* some internal defines */
 #define KEY_RANGE   	(('z' - 'a') + 1)
@@ -293,15 +293,7 @@ int download_temp(const char *host, const char *port, const char *selector)
     return 1;
 }
 
-int make_key(char c1, char c2)
-{
-    if (! c1 || ! c2)
-        return -1;
-    else
-        return ((c1 - 'a') * KEY_RANGE) + (c2 - 'a');
-}
-
-int make_key2(char c1, char c2, char c3)
+int make_key(char c1, char c2, char c3)
 {
     if (! c1 || ! c2)
         return -1;
@@ -812,12 +804,12 @@ int main(int argc, char *argv[])
                     "?          - help\n"
                     "*          - reload directory\n"
                     "<          - go back in history\n"
-                    ".LINK      - download the given link\n"
-                    "h          - show history\n"
-                    "hLINK      - jump to the specified history item\n"
-                    "gURI       - jump to the given gopher URI\n"
-                    "b          - show bookmarks\n"
-                    "bLINK      - jump to the specified bookmark item\n"
+                    ".[LINK]    - download the given link\n"
+                    "H          - show history\n"
+                    "H[LINK]    - jump to the specified history item\n"
+                    "G[URI]     - jump to the given gopher URI\n"
+                    "B          - show bookmarks\n"
+                    "B[LINK]    - jump to the specified bookmark item\n"
                     "C^d        - quit");
                 break;
             case '<':
@@ -828,24 +820,20 @@ int main(int argc, char *argv[])
                         current_selector, 0);
                 break;
             case '.':
-                download_link(make_key(line[1], line[2]));
+                download_link(make_key(line[1], line[2], line[3]));
                 break;
-            case 'h':
-                if (i == 1 || i == 3) view_history(make_key(line[1], line[2]));
-                else follow_link(make_key(line[0], line[1]));
+            case 'H':
+                if (i == 1 || i == 3 || i == 4) view_history(make_key(line[1], line[2], line[3]));
                 break;
-            case 'g':
-                if (i != 2) {
-                    if (parse_uri(&line[1])) view_directory(parsed_host, parsed_port, parsed_selector, 1);
-                    else puts("invalid gopher URI");
-                } else follow_link(make_key(line[0], line[1]));
+            case 'G':
+                if (parse_uri(&line[1])) view_directory(parsed_host, parsed_port, parsed_selector, 1);
+                else puts("invalid gopher URI");
                 break;
-            case 'b':
-                if (i == 1 || i == 3) view_bookmarks(make_key(line[1], line[2]));
-                else follow_link(make_key(line[0], line[1]));
+            case 'B':
+                if (i == 1 || i == 3 || i == 4) view_bookmarks(make_key(line[1], line[2], line[3]));
                 break;
             default:
-                follow_link(make_key2(line[0], line[1], line[2]));
+                follow_link(make_key(line[0], line[1], line[2]));
                 break;
         }
     }
