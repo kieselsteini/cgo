@@ -39,7 +39,7 @@
 #define HEAD_CHECK_LEN      5
 #define GLOBAL_CONFIG_FILE  "/etc/cgorc"
 #define LOCAL_CONFIG_FILE   "/.cgorc"
-#define NUM_BOOKMARKS       2000
+#define NUM_BOOKMARKS       20
 
 /* some internal defines */
 #define KEY_RANGE   	(('z' - 'a') + 1)
