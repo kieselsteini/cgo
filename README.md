@@ -48,8 +48,9 @@ Usage
 
  When "surfing" in the gopherspace cgo only present you
  directory listings. Every selector is preceeded with two
- ascii chars. By typing in both chars cgo will jump to
- the given selector. Every time you jump to another
+ ascii chars, or three if we run out of selectors in the
+ range 'aa', 'ab' ... 'zz'. By typing in these chars cgo will
+ jump to the given selector. Every time you jump to another
  directory listing cgo generates a history entry (like every
  browser). To show other media cgo uses external programs
  to present it (e.g. less, display, mplayer, firefox).
@@ -58,15 +59,15 @@ Usage
   * ?           help
   * <           jump back in history
   * *           reload directory
-  * [xx]        show / jump to selector
-  * .[xx]       download selector
-  * h           show history
-  * h[xx]       jump to specified history item
-  * g[URI]      jumps right to the specified gopher URI
-  * b           show bookmarks
-  * b[xx]       jump to specified bookmark item
+  * [link]      show / jump to selector
+  * .[link]     download selector
+  * H           show history
+  * H[link]     jump to specified history item
+  * G[URI]      jumps right to the specified gopher URI
+  * B           show bookmarks
+  * B[link]     jump to specified bookmark item
 
-[xx] stands for the two colored letters in front of selectors.
+[link] stands for the two (or three) colored letters in front of selectors.
 
 Configuration
 -------------
