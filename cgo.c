@@ -770,8 +770,8 @@ int main(int argc, char *argv[])
                 usage();
                 break;
             case 'v':
-                banner(stderr);
-                exit(EXIT_FAILURE);
+                banner(stdout);
+                exit(EXIT_SUCCESS);
             default:
                 usage();
         } else {
@@ -780,7 +780,6 @@ int main(int argc, char *argv[])
     }
 
     /* parse uri */
-    banner(stdout);
     if (! parse_uri(uri)) {
         banner(stderr);
         fprintf(stderr, "invalid gopher URI: %s", argv[i]);
