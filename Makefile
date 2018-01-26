@@ -1,11 +1,12 @@
 # see cgo.c for copyright and license details
 PREFIX = /usr/local
-CC = cc -O2 -Wall
+CC = cc
+CFLAGS ?= -O2 -Wall
 OBJ = cgo.o
 BIN = cgo
 
 default: $(OBJ)
-	$(CC) -o $(BIN) $(OBJ)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(BIN) $(OBJ)
 
 clean:
 	rm -f $(OBJ) $(BIN)
