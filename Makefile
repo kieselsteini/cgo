@@ -1,5 +1,6 @@
 # see cgo.c for copyright and license details
 PREFIX = /usr/local
+MANPREFIX = $(PREFIX)/share/man
 CC = cc
 CFLAGS ?= -O2 -Wall
 OBJ = cgo.o
@@ -11,10 +12,13 @@ default: $(OBJ)
 clean:
 	rm -f $(OBJ) $(BIN)
 
-install:
+install: default
 	@mkdir -p $(DESTDIR)$(PREFIX)/bin/
 	@install $(BIN) $(DESTDIR)$(PREFIX)/bin/${BIN}
+	@mkdir -p $(DESTDIR)$(MANPREFIX)/man1
+	@cp cgo.1 $(DESTDIR)$(MANPREFIX)/man1/cgo.1
+	@chmod 644 $(DESTDIR)$(MANPREFIX)/man1/cgo.1
 
 uninstall:
 	@rm -f $(DESTDIR)$(PREFIX)/bin/$(BIN)
-
+	@rm -r $(DESTDIR)$(MANPREFIX)/man1/cgo.1
