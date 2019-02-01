@@ -46,8 +46,8 @@ gopherhole specified in the source file.
 Usage
 -----
 
- When "surfing" in the gopherspace cgo only present you
- directory listings. Every selector is preceeded with two
+ When "surfing" in the gopherspace cgo only presents you
+ with directory listings. Every selector is preceeded with two
  ascii chars, or three if we run out of selectors in the
  range 'aa', 'ab' ... 'zz'. By typing in these chars cgo will
  jump to the given selector. Every time you jump to another
@@ -98,6 +98,6 @@ Bugs
 
 
 Feel free to use this small gopher client. I hope you'll
-find it as useful as I do. Send me comments or patches it you
+find it as useful as I do. Send me comments or patches if you
 like. I would appreciate it.
 
