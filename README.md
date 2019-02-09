@@ -46,8 +46,8 @@ gopherhole specified in the source file.
 Usage
 -----
 
- When "surfing" in the gopherspace cgo only present you
- directory listings. Every selector is preceeded with two
+ When "surfing" in the gopherspace cgo only presents you
+ with directory listings. Every selector is preceeded with two
  ascii chars, or three if we run out of selectors in the
  range 'aa', 'ab' ... 'zz'. By typing in these chars cgo will
  jump to the given selector. Every time you jump to another
@@ -56,34 +56,34 @@ Usage
  to present it (e.g. less, display, mplayer, firefox).
  Following commands are understood by cgo:
 
-  * ?           help
-  * <           jump back in history
-  * *           reload directory
+  * <kbd>?</kbd>           help
+  * <kbd><</kbd>           jump back in history
+  * <kbd>*</kbd>           reload directory
   * [link]      show / jump to selector
-  * .[link]     download selector
-  * H           show history
-  * H[link]     jump to specified history item
-  * G[URI]      jumps right to the specified gopher URI
-  * B           show bookmarks
-  * B[link]     jump to specified bookmark item
+  * <kbd>.</kbd>[link]     download selector
+  * <kbd>H</kbd>           show history
+  * <kbd>H</kbd>[link]     jump to specified history item
+  * <kbd>G</kbd>[URI]      jumps right to the specified gopher URI
+  * <kbd>B</kbd>           show bookmarks
+  * <kbd>B</kbd>[link]     jump to specified bookmark item
 
 [link] stands for the two (or three) colored letters in front of selectors.
 
 Configuration
 -------------
 
- cgo reads "/etc/cgorc" and then "$(HOME)/.cgorc" for defaults. If both
+ cgo reads `/etc/cgorc` and then `$(HOME)/.cgorc` for defaults. If both
  files are missing, hardcoded defaults will be used. Following configuration
  keys are recognized by cgo:
 
- * start_uri        the gopher URI which is displayed at start
- * cmd_text         command to show text files
- * cmd_browser      command to HTML links
- * cmd_image        command to show images
- * cmd_player       command to play audio files
- * color_prompt     ANSI color sequence for the prompt
- * color_selector   ANSI color sequence for selectors
- * bookmarkN        configure bookmarks
+ * `start_uri`        the gopher URI which is displayed at start
+ * `cmd_text`         command to show text files
+ * `cmd_browser`      command to HTML links
+ * `cmd_image`        command to show images
+ * `cmd_player`       command to play audio files
+ * `color_prompt`     ANSI color sequence for the prompt
+ * `color_selector`   ANSI color sequence for selectors
+ * `bookmarkN`        configure bookmarks
 
 Todo
 ----
@@ -98,6 +98,6 @@ Bugs
 
 
 Feel free to use this small gopher client. I hope you'll
-find it as useful as I do. Send me comments or patches it you
+find it as useful as I do. Send me comments or patches if you
 like. I would appreciate it.
 
