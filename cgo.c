@@ -55,6 +55,13 @@ struct link_s {
     char    *selector;
 };
 
+typedef struct selector_s selector_t;
+struct selector_s {
+    char    host[512];
+    char    port[64];
+    char    selector[1024];
+};
+
 typedef struct config_s config_t;
 struct config_s {
     char    start_uri[512];
@@ -70,8 +77,7 @@ char        tmpfilename[256];
 link_t      *links = NULL;
 link_t      *history = NULL;
 int         link_key;
-char        current_host[512], current_port[64], current_selector[1024];
-char        parsed_host[512], parsed_port[64], parsed_selector[1024];
+selector_t  current, parsed;
 char        bookmarks[NUM_BOOKMARKS][512];
 config_t    config;
 
@@ -88,7 +94,7 @@ void usage()
 
 void banner(FILE *f)
 {
-    fputs("cgo 0.5.0  Copyright (c) 2019  Sebastian Steinhauer\n", f);
+    fputs("cgo 0.5.1  Copyright (c) 2019  Sebastian Steinhauer\n", f);
 }
 
 void parse_config_line(const char *line)
@@ -362,9 +368,9 @@ void add_history()
     link_t  *link;
 
     link = calloc(1, sizeof(link_t));
-    link->host = strdup(current_host);
-    link->port = strdup(current_port);
-    link->selector = strdup(current_selector);
+    link->host = strdup(current.host);
+    link->port = strdup(current.port);
+    link->selector = strdup(current.selector);
     link->which = 0;    /* not needed for history...just clear them */
     link->key = 0;
     if (! history)
@@ -457,13 +463,13 @@ void view_directory(const char *host, const char *port,
         /* make history entry */
         if (make_current)
             add_history();
-        /* don't overwrite the current_* things... */
-        if (host != current_host)
-            snprintf(current_host, sizeof(current_host), "%s", host);
-        if (port != current_port)
-            snprintf(current_port, sizeof(current_port), "%s", port);
-        if (selector != current_selector)
-            snprintf(current_selector, sizeof(current_selector),
+        /* don't overwrite the current structure */
+        if (host != current.host)
+            snprintf(current.host, sizeof(current.host), "%s", host);
+        if (port != current.port)
+            snprintf(current.port, sizeof(current.port), "%s", port);
+        if (selector != current.selector)
+            snprintf(current.selector, sizeof(current.selector),
                     "%s", selector);
     }
     clear_links();  /* clear links *AFTER* dialing out!! */
@@ -638,7 +644,7 @@ void view_bookmarks(int key)
     } else {
         for (i = 0; i < NUM_BOOKMARKS; i++) {
             if (bookmarks[i][0] && i == key) {
-                if (parse_uri(&bookmarks[i][0])) view_directory(parsed_host, parsed_port, parsed_selector, 0);
+                if (parse_uri(&bookmarks[i][0])) view_directory(parsed.host, parsed.port, parsed.selector, 0);
                 else printf("invalid gopher URI: %s", &bookmarks[i][0]);
                 return;
             }
@@ -731,26 +737,26 @@ int parse_uri(const char *uri)
         uri += 9;
     /* parse host */
     for (i = 0; *uri && *uri != ':' && *uri != '/'; uri++) {
-        if (*uri != ' ' && i < sizeof(parsed_host) - 1)
-            parsed_host[i++] = *uri;
+        if (*uri != ' ' && i < sizeof(parsed.host) - 1)
+            parsed.host[i++] = *uri;
     }
-    if (i > 0) parsed_host[i] = 0;
+    if (i > 0) parsed.host[i] = 0;
     else return 0;
     /* parse port */
     if (*uri == ':') {
         uri++;
         for (i = 0; *uri && *uri != '/'; uri++)
-            if (*uri != ' ' && i < sizeof(parsed_port) - 1)
-                parsed_port[i++] = *uri;
-        parsed_port[i] = 0;
-    } else snprintf(parsed_port, sizeof(parsed_port), "%d", 70);
+            if (*uri != ' ' && i < sizeof(parsed.port) - 1)
+                parsed.port[i++] = *uri;
+        parsed.port[i] = 0;
+    } else snprintf(parsed.port, sizeof(parsed.port), "%d", 70);
     /* parse selector */
     if (*uri == '/') {
         for (i = 0, ++uri; *uri; ++uri)
-            if (i < sizeof(parsed_selector) - 1)
-                parsed_selector[i++] = *uri;
-        parsed_selector[i++] = *uri;
-    } else snprintf(parsed_selector, sizeof(parsed_selector), "%s", "");
+            if (i < sizeof(parsed.selector) - 1)
+                parsed.selector[i++] = *uri;
+        parsed.selector[i++] = *uri;
+    } else snprintf(parsed.selector, sizeof(parsed.selector), "%s", "");
 
     return 1;
 }
@@ -788,10 +794,10 @@ int main(int argc, char *argv[])
     }
 
     /* main loop */
-    view_directory(parsed_host, parsed_port, parsed_selector, 0);
+    view_directory(parsed.host, parsed.port, parsed.selector, 0);
     for (;;) {
         printf("\033[%sm%s:%s%s\033[0m ", config.color_prompt,
-                current_host, current_port, current_selector);
+                current.host, current.port, current.selector);
         fflush(stdout); /* to display the prompt */
         if (! read_line(0, line, sizeof(line))) {
             puts("QUIT");
@@ -816,8 +822,8 @@ int main(int argc, char *argv[])
                 pop_history();
                 break;
             case '*':
-                view_directory(current_host, current_port,
-                        current_selector, 0);
+                view_directory(current.host, current.port,
+                        current.selector, 0);
                 break;
             case '.':
                 download_link(make_key(line[1], line[2], line[3]));
@@ -826,7 +832,7 @@ int main(int argc, char *argv[])
                 if (i == 1 || i == 3 || i == 4) view_history(make_key(line[1], line[2], line[3]));
                 break;
             case 'G':
-                if (parse_uri(&line[1])) view_directory(parsed_host, parsed_port, parsed_selector, 1);
+                if (parse_uri(&line[1])) view_directory(parsed.host, parsed.port, parsed.selector, 1);
                 else puts("invalid gopher URI");
                 break;
             case 'B':
