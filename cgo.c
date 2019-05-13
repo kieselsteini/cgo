@@ -1,6 +1,6 @@
 /*
  * cgo - a simple terminal based gopher client
- * Copyright (c) 2014 Sebastian Steinhauer <s.steinhauer@yahoo.de>
+ * Copyright (c) 2019 Sebastian Steinhauer <s.steinhauer@yahoo.de>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -88,7 +88,7 @@ void usage()
 
 void banner(FILE *f)
 {
-    fputs("cgo 0.4.1  Copyright (c) 2014  Sebastian Steinhauer\n", f);
+    fputs("cgo 0.5.0  Copyright (c) 2019  Sebastian Steinhauer\n", f);
 }
 
 void parse_config_line(const char *line)
@@ -746,11 +746,12 @@ int parse_uri(const char *uri)
     } else snprintf(parsed_port, sizeof(parsed_port), "%d", 70);
     /* parse selector */
     if (*uri == '/') {
-        for (i = 0; *uri; uri++)
+        for (i = 0, ++uri; *uri; ++uri)
             if (i < sizeof(parsed_selector) - 1)
                 parsed_selector[i++] = *uri;
         parsed_selector[i++] = *uri;
-    } else snprintf(parsed_selector, sizeof(parsed_selector), "%s", "/");
+    } else snprintf(parsed_selector, sizeof(parsed_selector), "%s", "");
+
     return 1;
 }
 
