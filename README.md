@@ -61,7 +61,7 @@ Following commands are understood by cgo:
 
 ## Configuration
 
- cgo reads "/etc/cgorc" and then "$(HOME)/.cgorc" for defaults. If both
+ cgo reads `/etc/cgorc` and then `$(HOME)/.cgorc` for defaults. If both
  files are missing, hardcoded defaults will be used. Following configuration
  keys are recognized by cgo:
 
@@ -87,6 +87,9 @@ Following commands are understood by cgo:
 
 * none I'm aware of :)
 
+Feel free to use this small gopher client. I hope you'll
+find it as useful as I do. Send me comments or patches if you
+like. I would appreciate it.
 
 Feel free to use this small gopher client. I hope you'll find it as useful as
 I do. Send me comments or patches it you like. I would appreciate it.
