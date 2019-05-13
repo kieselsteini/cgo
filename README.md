@@ -45,18 +45,18 @@ cgo generates a history entry (like every browser). To show other media cgo
 uses external programs to present it (e.g. less, display, mplayer, firefox).
 Following commands are understood by cgo:
 
-* ?           help
-* <           jump back in history
-* *           reload directory
-* [link]      show / jump to selector
-* .[link]     download selector
-* H           show history
-* H[link]     jump to specified history item
-* G[URI]      jumps right to the specified gopher URI
-* B           show bookmarks
-* B[link]     jump to specified bookmark item
+* ```?```  help
+* ```<```  jump back in history
+* ```*```  reload directory
+* ```[link]``` show / jump to selector
+* ```.[link]``` download selector
+* ```H``` show history
+* ```H[link]``` jump to specified history item
+* ```G[URI]``` jumps right to the specified gopher URI
+* ```B``` show bookmarks
+* ```B[link]``` jump to specified bookmark item
 
-[link] stands for the two (or three) colored letters in front of selectors.
+```[link]``` stands for the two (or three) colored letters in front of selectors.
 
 
 ## Configuration
