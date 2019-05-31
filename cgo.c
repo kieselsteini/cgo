@@ -93,6 +93,11 @@ void banner(FILE *f)
     fputs("cgo 0.6.0  Copyright (c) 2019  Sebastian Steinhauer\n", f);
 }
 
+int check_option_true(const char *option)
+{
+    return strcasecmp(option, "false") && strcasecmp(option, "off");
+}
+
 void parse_config_line(const char *line)
 {
     char    token[1024];
@@ -258,7 +263,7 @@ int download_file(const char *host, const char *port,
     unsigned long   total = 0;
     char            buffer[4096];
 
-    if (strcasecmp(config.verbose, "false") && strcasecmp(config.verbose, "off"))
+    if (check_option_true(config.verbose))
         printf("downloading [%s]...\r", selector);
     srvfd = dial(host, port, selector);
     if (srvfd == -1) {
@@ -269,12 +274,12 @@ int download_file(const char *host, const char *port,
     while ((len = read(srvfd, buffer, sizeof(buffer))) > 0) {
         write(fd, buffer, len);
         total += len;
-        if (strcasecmp(config.verbose, "false") && strcasecmp(config.verbose, "off"))
+        if (check_option_true(config.verbose))
             printf("downloading [%s] (%ld kb)...\r", selector, total / 1024);
     }
     close(fd);
     close(srvfd);
-    if (strcasecmp(config.verbose, "false") && strcasecmp(config.verbose, "off"))
+    if (check_option_true(config.verbose))
         printf("\033[2Kdownloading [%s] complete\n", selector);
     return 1;
 }
@@ -507,7 +512,7 @@ void view_file(const char *cmd, const char *host,
     int     status, i, j;
     char    buffer[1024], *argv[32], *p;
 
-    if (strcasecmp(config.verbose, "false") && strcasecmp(config.verbose, "off"))
+    if (check_option_true(config.verbose))
         printf("h(%s) p(%s) s(%s)\n", host, port, selector);
 
     if (! download_temp(host, port, selector))
@@ -527,7 +532,7 @@ void view_file(const char *cmd, const char *host,
     argv[j] = NULL;
 
     /* fork and execute */
-    if (strcasecmp(config.verbose, "false") && strcasecmp(config.verbose, "off"))
+    if (check_option_true(config.verbose))
         printf("executing: %s %s\n", cmd, tmpfilename);
     pid = fork();
     if (pid == 0) {
