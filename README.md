@@ -83,6 +83,7 @@ Configuration
  * `cmd_player`       command to play audio files
  * `color_prompt`     ANSI color sequence for the prompt
  * `color_selector`   ANSI color sequence for selectors
+ * `verbose`          If not "false" or "off" it will show messages like "downloading" / "executing" when downloading a selector
  * `bookmarkN`        configure bookmarks
 
 Todo
@@ -100,4 +101,3 @@ Bugs
 Feel free to use this small gopher client. I hope you'll
 find it as useful as I do. Send me comments or patches if you
 like. I would appreciate it.
-

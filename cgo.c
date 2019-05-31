@@ -90,7 +90,7 @@ void usage()
 
 void banner(FILE *f)
 {
-    fputs("cgo 0.5.0  Copyright (c) 2019  Sebastian Steinhauer\n", f);
+    fputs("cgo 0.6.0  Copyright (c) 2019  Sebastian Steinhauer\n", f);
 }
 
 void parse_config_line(const char *line)
