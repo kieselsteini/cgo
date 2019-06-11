@@ -40,6 +40,7 @@
 #define GLOBAL_CONFIG_FILE  "/etc/cgorc"
 #define LOCAL_CONFIG_FILE   "/.cgorc"
 #define NUM_BOOKMARKS       20
+#define VERBOSE             "true"
 
 /* some internal defines */
 #define KEY_RANGE   	(('z' - 'a') + 1)
@@ -64,6 +65,7 @@ struct config_s {
     char    cmd_player[512];
     char    color_prompt[512];
     char    color_selector[512];
+    char    verbose[512];
 };
 
 char        tmpfilename[256];
@@ -88,7 +90,12 @@ void usage()
 
 void banner(FILE *f)
 {
-    fputs("cgo 0.5.0  Copyright (c) 2019  Sebastian Steinhauer\n", f);
+    fputs("cgo 0.6.0  Copyright (c) 2019  Sebastian Steinhauer\n", f);
+}
+
+int check_option_true(const char *option)
+{
+    return strcasecmp(option, "false") && strcasecmp(option, "off");
 }
 
 void parse_config_line(const char *line)
@@ -110,6 +117,7 @@ void parse_config_line(const char *line)
     else if (! strcmp(token, "cmd_player")) value = &config.cmd_player[0];
     else if (! strcmp(token, "color_prompt")) value = &config.color_prompt[0];
     else if (! strcmp(token, "color_selector")) value = &config.color_selector[0];
+    else if (! strcmp(token, "verbose")) value = &config.verbose[0];
     else {
         for (j = 0; j < NUM_BOOKMARKS; j++) {
             snprintf(bkey, sizeof(bkey), "bookmark%d", j+1);
@@ -183,6 +191,7 @@ void init_config()
     snprintf(config.cmd_player, sizeof(config.cmd_player), "%s", CMD_PLAYER);
     snprintf(config.color_prompt, sizeof(config.color_prompt), "%s", COLOR_PROMPT);
     snprintf(config.color_selector, sizeof(config.color_selector), "%s", COLOR_SELECTOR);
+    snprintf(config.verbose, sizeof(config.verbose), "%s", VERBOSE);
     for (i = 0; i < NUM_BOOKMARKS; i++) bookmarks[i][0] = 0;
     /* read configs */
     load_config(GLOBAL_CONFIG_FILE);
@@ -254,7 +263,8 @@ int download_file(const char *host, const char *port,
     unsigned long   total = 0;
     char            buffer[4096];
 
-    printf("downloading [%s]...\r", selector);
+    if (check_option_true(config.verbose))
+        printf("downloading [%s]...\r", selector);
     srvfd = dial(host, port, selector);
     if (srvfd == -1) {
         printf("\033[2Kerror: downloading [%s] failed\n", selector);
@@ -264,11 +274,13 @@ int download_file(const char *host, const char *port,
     while ((len = read(srvfd, buffer, sizeof(buffer))) > 0) {
         write(fd, buffer, len);
         total += len;
-        printf("downloading [%s] (%ld kb)...\r", selector, total / 1024);
+        if (check_option_true(config.verbose))
+            printf("downloading [%s] (%ld kb)...\r", selector, total / 1024);
     }
     close(fd);
     close(srvfd);
-    printf("\033[2Kdownloading [%s] complete\n", selector);
+    if (check_option_true(config.verbose))
+        printf("\033[2Kdownloading [%s] complete\n", selector);
     return 1;
 }
 
@@ -500,7 +512,8 @@ void view_file(const char *cmd, const char *host,
     int     status, i, j;
     char    buffer[1024], *argv[32], *p;
 
-    printf("h(%s) p(%s) s(%s)\n", host, port, selector);
+    if (check_option_true(config.verbose))
+        printf("h(%s) p(%s) s(%s)\n", host, port, selector);
 
     if (! download_temp(host, port, selector))
         return;
@@ -519,7 +532,8 @@ void view_file(const char *cmd, const char *host,
     argv[j] = NULL;
 
     /* fork and execute */
-    printf("executing: %s %s\n", cmd, tmpfilename);
+    if (check_option_true(config.verbose))
+        printf("executing: %s %s\n", cmd, tmpfilename);
     pid = fork();
     if (pid == 0) {
         if (execvp(argv[0], argv) == -1)
