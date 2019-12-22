@@ -54,7 +54,7 @@ Usage
  directory listing cgo generates a history entry (like every
  browser). To show other media cgo uses external programs
  to present it (e.g. less, display, mplayer, firefox).
- Following commands are understood by cgo:
+ The following commands are understood by cgo:
 
   * <kbd>?</kbd>           help
   * <kbd><</kbd>           jump back in history
