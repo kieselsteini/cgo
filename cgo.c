@@ -90,7 +90,7 @@ void usage()
 
 void banner(FILE *f)
 {
-    fputs("cgo 0.6.0  Copyright (c) 2019  Sebastian Steinhauer\n", f);
+    fputs("cgo 0.6.1  Copyright (c) 2020  Sebastian Steinhauer\n", f);
 }
 
 int check_option_true(const char *option)
@@ -620,7 +620,7 @@ void view_history(int key)
         puts("(history)");
         for ( link = history; link; link = link->next ) {
             make_key_str(history_key++, &a, &b, &c);
-            printf("\033[%sm%c%c%c\033[0m \033[1m%s:%s%s\033[0m\n",
+            printf("\033[%sm%c%c%c\033[0m \033[1m%s:%s/1%s\033[0m\n",
                 COLOR_SELECTOR, a, b, c, link->host, link->port, link->selector);
         }
     } else {
@@ -758,13 +758,12 @@ int parse_uri(const char *uri)
                 parsed_port[i++] = *uri;
         parsed_port[i] = 0;
     } else snprintf(parsed_port, sizeof(parsed_port), "%d", 70);
-    /* parse selector */
-    if (*uri == '/') {
-        for (i = 0, ++uri; *uri; ++uri)
-            if (i < sizeof(parsed_selector) - 1)
-                parsed_selector[i++] = *uri;
-        parsed_selector[i++] = *uri;
-    } else snprintf(parsed_selector, sizeof(parsed_selector), "%s", "");
+    /* parse selector (ignore slash and selector type) */
+    if (*uri) ++uri;
+    if (*uri) ++uri;
+    for (i = 0; *uri && i < sizeof(parsed_selector) - 1; ++uri, ++i)
+        parsed_selector[i] = *uri;
+    parsed_selector[i] = '\0';
 
     return 1;
 }
