@@ -13,7 +13,7 @@ color_selector  1;32
 
 # be "verbose"
 verbose         off
-
+clear_on_new    on
 # bookmarks
 bookmark1       gopher://gopher.floodgap.com:70/
 bookmark2       gopher://devio.us:70/~steini

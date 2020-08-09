@@ -89,13 +89,17 @@ Configuration
 Todo
 ----
 
- * list is empty :D
+ * [x] Clear on New page
+ * [ ] Command history
+ * [ ] More colors
+
 
 
 Bugs
 ----
 
  * none I'm aware of :)
+ * many that i am not aware of :( 
 
 
 Feel free to use this small gopher client. I hope you'll
