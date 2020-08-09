@@ -90,8 +90,8 @@ Todo
 ----
 
  * [x] Clear on New page
- * [  ] Command history
- * [  ] More colors
+ * [ ] Command history
+ * [ ] More colors
 
 
 
