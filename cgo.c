@@ -41,7 +41,8 @@
 #define LOCAL_CONFIG_FILE   "/.cgorc"
 #define NUM_BOOKMARKS       20
 #define VERBOSE             "true"
-
+#define CLEAR_ON_NEW        "true"
+#define clear() printf("\033[H\033[J")
 /* some internal defines */
 #define KEY_RANGE   	(('z' - 'a') + 1)
 
@@ -66,6 +67,7 @@ struct config_s {
     char    color_prompt[512];
     char    color_selector[512];
     char    verbose[512];
+    char    clear_on_new[512];
 };
 
 char        tmpfilename[256];
@@ -90,7 +92,7 @@ void usage()
 
 void banner(FILE *f)
 {
-    fputs("cgo 0.6.1  Copyright (c) 2020  Sebastian Steinhauer\n", f);
+    fputs("cgo 0.6.2  Copyright (c) 2020  Sebastian Steinhauer\n", f);
 }
 
 int check_option_true(const char *option)
@@ -118,6 +120,7 @@ void parse_config_line(const char *line)
     else if (! strcmp(token, "color_prompt")) value = &config.color_prompt[0];
     else if (! strcmp(token, "color_selector")) value = &config.color_selector[0];
     else if (! strcmp(token, "verbose")) value = &config.verbose[0];
+    else if (! strcmp(token, "clear_on_new")) value = &config.clear_on_new[0];
     else {
         for (j = 0; j < NUM_BOOKMARKS; j++) {
             snprintf(bkey, sizeof(bkey), "bookmark%d", j+1);
@@ -192,6 +195,7 @@ void init_config()
     snprintf(config.color_prompt, sizeof(config.color_prompt), "%s", COLOR_PROMPT);
     snprintf(config.color_selector, sizeof(config.color_selector), "%s", COLOR_SELECTOR);
     snprintf(config.verbose, sizeof(config.verbose), "%s", VERBOSE);
+    snprintf(config.clear_on_new, sizeof(config.clear_on_new), "%s", CLEAR_ON_NEW);
     for (i = 0; i < NUM_BOOKMARKS; i++) bookmarks[i][0] = 0;
     /* read configs */
     load_config(GLOBAL_CONFIG_FILE);
@@ -829,6 +833,8 @@ int main(int argc, char *argv[])
                 pop_history();
                 break;
             case '*':
+                if (check_option_true(config.clear_on_new))
+                clear();
                 view_directory(current_host, current_port,
                         current_selector, 0);
                 break;
@@ -839,6 +845,8 @@ int main(int argc, char *argv[])
                 if (i == 1 || i == 3 || i == 4) view_history(make_key(line[1], line[2], line[3]));
                 break;
             case 'G':
+                if (check_option_true(config.clear_on_new))
+                clear();
                 if (parse_uri(&line[1])) view_directory(parsed_host, parsed_port, parsed_selector, 1);
                 else puts("invalid gopher URI");
                 break;
@@ -846,6 +854,8 @@ int main(int argc, char *argv[])
                 if (i == 1 || i == 3 || i == 4) view_bookmarks(make_key(line[1], line[2], line[3]));
                 break;
             default:
+                if (check_option_true(config.clear_on_new))
+                clear();
                 follow_link(make_key(line[0], line[1], line[2]));
                 break;
         }
