@@ -43,7 +43,8 @@
 #define VERBOSE             "true"
 
 /* some internal defines */
-#define KEY_RANGE   	(('z' - 'a') + 1)
+#define KEY_FIRST       'a'
+#define KEY_RANGE   	(('z' - KEY_FIRST) + 1)
 
 /* structs */
 typedef struct link_s link_t;
@@ -311,20 +312,21 @@ int make_key(char c1, char c2, char c3)
         return -1;
 
     if (! c3)
-        return ((c1 - 'a') * KEY_RANGE) + (c2 - 'a');
+        return ((c1 - KEY_FIRST) * KEY_RANGE) + (c2 - KEY_FIRST);
     else
-        return (((c1 - 'a' + 1) * KEY_RANGE * KEY_RANGE) + ((c2 - 'a') * KEY_RANGE) + (c3 - 'a'));
+        return (((c1 - KEY_FIRST + 1) * KEY_RANGE * KEY_RANGE) +
+                ((c2 - KEY_FIRST) * KEY_RANGE) + (c3 - KEY_FIRST));
 }
 
 void make_key_str(int key, char *c1, char *c2, char *c3) {
     if (key < (KEY_RANGE * KEY_RANGE)) {
-        *c1 = 'a' + (key / KEY_RANGE);
-        *c2 = 'a' + (key % KEY_RANGE);
+        *c1 = KEY_FIRST + (key / KEY_RANGE);
+        *c2 = KEY_FIRST + (key % KEY_RANGE);
         *c3 = 0;
     } else {
-        *c1 = 'a' + (key / (KEY_RANGE * KEY_RANGE)) - 1;
-        *c2 = 'a' + ((key / KEY_RANGE) % KEY_RANGE);
-        *c3 = 'a' + (key % KEY_RANGE);
+        *c1 = KEY_FIRST + (key / (KEY_RANGE * KEY_RANGE)) - 1;
+        *c2 = KEY_FIRST + ((key / KEY_RANGE) % KEY_RANGE);
+        *c3 = KEY_FIRST + (key % KEY_RANGE);
     }
 }
 
